@@ -6,7 +6,7 @@
   "workbench.editorAssociations": {
     "*.ipynb": "jupyter-notebook"
   },
-  "workbench.sideBar.location": "right",
+  "workbench.sideBar.location": "left",
   "workbench.statusBar.visible": true,
   // Files
   "files.insertFinalNewline": true,
@@ -88,7 +88,9 @@
   // Spell checker
   "cSpell.enabled": true,
   "cSpell.language": "en,fr",
-  "python.testing.pytestArgs": ["tests"],
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
   "python.testing.unittestEnabled": false,
   // "python.testing.nosetestsEnabled": false,
   "python.testing.pytestEnabled": true
