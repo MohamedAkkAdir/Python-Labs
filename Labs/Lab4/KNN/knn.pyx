@@ -1,41 +1,53 @@
 import numpy as np
-cimport numpy as np
-from scipy.stats import mode
+cimport cython
 
+# Define the data types for arrays
+DTYPE = np.int_
+DTYPE2 = np.double
 
-cdef distance(double[:,:] x_train_view,Py_ssize_t N_train, double[:,:] x_test_view,Py_ssize_t i):
+@cython.boundscheck(False)  # Deactivate bounds checking for performance
+@cython.wraparound(False)    # Deactivate negative indexing for performance
+cpdef double[:] knn_cython(double[:, :] x, Py_ssize_t K, double[:, :] data_train, long[:] class_train):
+    """
+    KNN classifier.
 
-    cdef Py_ssize_t j, d
-    cdef double dist, diff
-    distances = np.zeros(N_train, dtype=float)
-    cdef double[:] distances_view = distances
+    Numpy implementation of a K-nearest neighbours (KNN) classifier. Assumes
+    samples are classified as row vectors.
 
-    for j in range(N_train):
-        dist = 0
-        for d in range(x_train_view.shape[1]):
-            diff = x_train_view[j, d] - x_test_view[i, d]
-            dist += diff * diff
-        distances_view[j] = dist
-    return distances_view
+    Args:
+    x (array): input features to be classified (each sample corresponds to
+               a row).
+    K (int): number of neighbours for the KNN classification.
+    data_train (array): training data (each sample corresponds to a row).
+    class_train (array of int): class associated with each example in the
+                                 training data.
 
+    Returns:
+    class_pred (array): predicted class for each input vector x[q,:].
+    """
 
-cdef knn(double[:,:] x_train, int[:] class_train, double[:,:] x_test, int k):
+    # Check input dimensions
+    assert data_train.shape[0] == class_train.shape[0]
+    assert x.shape[1] == data_train.shape[1]
 
-    cdef Py_ssize_t N_test = x_test.shape[0]
-    cdef Py_ssize_t N_train = x_train.shape[0]
-    cdef Py_ssize_t i,j,d, idx
-    cdef double dist, diff
-    cdef int mode_class
+    # Initialize the prediction array
+    cdef long[:] class_pred = np.zeros(x.shape[0], dtype=DTYPE)
 
-    class_test = np.zeros(N_test, dtype=int)
-    cdef int[:] class_test_review = class_test
-    cdef double[:,:] x_train_view = x_train
-    cdef double[:,:] x_test_view = x_test
+    # Preallocate distance and labels arrays
+    cdef Py_ssize_t n_test = x.shape[0]
+    cdef Py_ssize_t n_train = data_train.shape[0]
+    cdef double[:] distance = np.zeros(n_train, dtype=DTYPE2)
+    cdef long[:] labels = np.zeros(K, dtype=DTYPE)
 
-    for i in range(N_test):
-        distances = distance(x_train_view,N_train, x_test_view,i)
-        idx = np.argsort(distances)[:k]
-        mode_class = int(mode(class_train[idx])[0])
-        class_test_review[i] = mode_class
+    cdef Py_ssize_t i, j, k
 
-    return class_test
+    # Iterate through each test sample
+    for i in range(n_test):
+        # Compute distances from the current test point to all training points
+        for j in range(n_train):
+            distance[j] = 0.0
+            for k in range(x.shape[1]):
+                distance[j] += (data_train[j, k] - x[i, k]) ** 2
+            distance[j] = np.sqrt(distance[j])  # Taking the square root to get actual distance
+
+    return distance
