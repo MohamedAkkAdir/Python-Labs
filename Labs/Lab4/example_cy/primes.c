@@ -2482,7 +2482,7 @@ static PyObject *__pyx_pf_6primes_cprimes(CYTHON_UNUSED PyObject *__pyx_self, in
  *             k = k + 1
  *             result.append(n)             # <<<<<<<<<<<<<<
  *         n = n + 1
- *     #return result
+ * 
  */
       __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
@@ -2502,6 +2502,7 @@ static PyObject *__pyx_pf_6primes_cprimes(CYTHON_UNUSED PyObject *__pyx_self, in
  *             k = k + 1
  *             result.append(n)
  *         n = n + 1             # <<<<<<<<<<<<<<
+ * 
  *     #return result
  */
     __pyx_v_n = (__pyx_v_n + 1);

@@ -1,19 +1,28 @@
-from distutils.core import setup, Extension
-from Cython.Build import cythonize
+import os
+from distutils.core import setup
+from distutils.extension import Extension
+
 import numpy
+from Cython.Build import cythonize
 
+os.environ["CC"] = "gcc"
 
+# extensions = [
+#     Extension("primes", ["primes.pyx"],
+#         include_dirs=[...],
+#         libraries=[...],
+#         library_dirs=[...]),
+#     # Everything but primes.pyx is included here.
+#     Extension("*", ["*.pyx"],
+#         include_dirs=[...],
+#         libraries=[...],
+#         library_dirs=[...]),
+# ]
+
+extensions = [
+    Extension("knn", ["knn.pyx"], include_dirs=[numpy.get_include()]),
+]
 
 setup(
-    ext_modules=cythonize("knn.pyx",annotate=True),
-    include_dirs=[numpy.get_include()],
-    script_args=['build_ext', '-b', 'build'],
-)
-
-
-setup(
-    ext_modules=[
-        Extension("knn", ["knn.c"],
-                  include_dirs=[numpy.get_include()]),
-    ],
+    ext_modules=cythonize(extensions),
 )
